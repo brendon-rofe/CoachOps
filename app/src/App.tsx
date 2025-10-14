@@ -1,8 +1,10 @@
+import Dashbaord from "./pages/dashboard"
+
 function App() {
 
   return (
     <>
-      <h1>CoachOps</h1>
+      <Dashbaord/>
     </>
   )
 }
