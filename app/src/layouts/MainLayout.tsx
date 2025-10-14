@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 export default function MainLayout({ children }: PropsWithChildren) {
   return (
     <div
-      className="relative flex h-auto min-h-screen w-full flex-col bg-[#111a22] dark group/design-root overflow-x-hidden"
+      className="relative flex h-auto min-h-screen w-full flex-col bg-white dark:bg-[#111a22] group/design-root overflow-x-hidden"
       style={{ fontFamily: 'Inter, "Noto Sans", sans-serif' }}
     >
       <div className="layout-container flex h-full grow flex-col">

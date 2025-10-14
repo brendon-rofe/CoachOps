@@ -1,23 +1,5 @@
 @import "tailwindcss";
 
-/* Drive dark mode by class: */
+/* Make `dark:` variants activate when <html> has class="dark" */
 @custom-variant dark (&:where(.dark, .dark *));
-
-/* Light (default) tokens */
-@theme {
-  --color-bg: #ffffff;
-  --color-fg: #0b1220;
-  --color-card: #f4f7fb;
-  --radius-card: 16px;
-}
-
-/* Override tokens when .dark is present */
-@layer theme {
-  @variant dark {
-    :root {
-      --color-bg: #111a22;
-      --color-fg: #e6f0fa;
-      --color-card: #233648;
-    }
-  }
-}
+:root { color-scheme: light dark; }
