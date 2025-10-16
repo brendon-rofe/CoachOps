@@ -23,7 +23,7 @@ const MoonIcon = () => (
 );
 
 export default function ThemeToggle() {
-  const [mode, setMode] = useState<"light" | "dark">("light");
+  const [mode, setMode] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
     const root = document.documentElement;
