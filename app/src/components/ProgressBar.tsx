@@ -1,5 +1,5 @@
 interface ProgressBarProps {
-  percent: number; // 0-100
+  percent: number;
   trackClassName?: string;
   barClassName?: string;
 }
