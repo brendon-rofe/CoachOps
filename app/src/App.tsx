@@ -1,12 +1,14 @@
-import Dashbaord from "./pages/dashboard"
+import MainLayout from "./layouts/MainLayout";
+import Dashboard from "./pages/dashboard";
 
 function App() {
-
   return (
     <>
-      <Dashbaord/>
+      <MainLayout>
+        <Dashboard />
+      </MainLayout>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
