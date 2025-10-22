@@ -20,7 +20,7 @@ model User {
   updatedAt       DateTime  @updatedAt
 
   connectRequests ConnectRequest[]
-  messages        Message[]
+  directMessages  DirectMessage[]
 }
 
 model ConnectRequest {
@@ -33,7 +33,7 @@ model ConnectRequest {
   userId          Int
 }
 
-model Message {
+model DirectMessage {
   id              Int       @id @default(autoincrement())
   content         String
   recipientName   String
