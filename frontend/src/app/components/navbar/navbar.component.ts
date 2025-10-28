@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { NgFor, NgStyle } from '@angular/common';
 import { ThemeService } from '../../services/theme.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, NgStyle],
   template: `
     <header
       class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#233648] px-10 py-3"
