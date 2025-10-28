@@ -4,7 +4,7 @@ import { Component, Input } from '@angular/core';
   selector: 'app-progress-bar',
   standalone: true,
   template: `
-    <div class="rounded bg-[#324d67] w-full">
+    <div class="rounded w-full bg-[#cfdbe7] dark:bg-[#324d67]">
       <div class="h-2 rounded bg-[#1380ec]" [style.width.%]="clamped"></div>
     </div>
   `,
