@@ -26,18 +26,10 @@ import { ThemeService } from '../../services/theme.service';
             ></path>
           </svg>
         </div>
-        <h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">Connectly</h2>
+        <h2 class="text-white text-lg font-bold leading-tight tracking-[-0.015em]">CoachOps</h2>
       </div>
 
       <div class="flex flex-1 justify-end gap-8 items-center">
-        <nav class="flex items-center gap-9">
-          <a class="text-white text-sm font-medium leading-normal" href="#">Home</a>
-          <a class="text-white text-sm font-medium leading-normal" href="#">My Network</a>
-          <a class="text-white text-sm font-medium leading-normal" href="#">Jobs</a>
-          <a class="text-white text-sm font-medium leading-normal" href="#">Messaging</a>
-          <a class="text-white text-sm font-medium leading-normal" href="#">Notifications</a>
-          <a class="text-white text-sm font-medium leading-normal" href="#">Me</a>
-        </nav>
 
         <div class="flex gap-2">
           <!-- Burger -->
