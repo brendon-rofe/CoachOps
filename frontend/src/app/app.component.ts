@@ -8,8 +8,9 @@ import { NavbarComponent } from './components/navbar/navbar.component';
   imports: [RouterOutlet, NavbarComponent],
   template: `
     <div
-      class="relative flex min-h-screen w-full flex-col bg-[#111a22] text-white overflow-x-hidden"
-      style='font-family: Inter, "Noto Sans", sans-serif;'
+      class="relative flex min-h-screen w-full flex-col
+                bg-slate-50 text-[#0d141b]
+                dark:bg-[#111a22] dark:text-white overflow-x-hidden"
     >
       <div class="layout-container flex h-full grow flex-col">
         <app-navbar />
