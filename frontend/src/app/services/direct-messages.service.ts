@@ -11,7 +11,7 @@ export interface DirectMessage {
 }
 
 @Injectable({ providedIn: 'root' })
-export class ConnectRequestsService {
+export class DirectMessageService {
   private http = inject(HttpClient);
   private base = environment.apiBase;
 
