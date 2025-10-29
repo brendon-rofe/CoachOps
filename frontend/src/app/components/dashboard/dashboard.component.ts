@@ -1,5 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { MetricComponent } from '../../components/metric/metric.component';
+import { ConnectRequestsService } from '../../services/connect-requests.service';
+
+const USER_ID = 1;
+const CONNECT_TARGET = 150;
 
 @Component({
   standalone: true,
@@ -19,7 +24,11 @@ import { MetricComponent } from '../../components/metric/metric.component';
     >
       Connect Requests
     </h2>
-    <app-metric title="Connect Requests Sent" [percent]="80" caption="120/150" />
+    <app-metric
+      title="Connect Requests Sent"
+      [percent]="connectPercent()"
+      [caption]="connectCaption()"
+    />
 
     <h2
       class="text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5 text-[#0d141b] dark:text-white"
@@ -36,4 +45,16 @@ import { MetricComponent } from '../../components/metric/metric.component';
     <app-metric title="Calls Booked" [percent]="90" caption="50/55" />
   `,
 })
-export class DashboardComponent {}
+export class DashboardComponent {
+  private connectSvc = inject(ConnectRequestsService);
+
+  connectTotalSig = toSignal(
+    this.connectSvc.countTotal(USER_ID),
+    { initialValue: 0 }
+  );
+
+  connectPercent = computed(() =>
+    Math.max(0, Math.min(100, Math.round((this.connectTotalSig() / CONNECT_TARGET) * 100)))
+  );
+  connectCaption = computed(() => `${this.connectTotalSig()}/${CONNECT_TARGET}`);
+}
