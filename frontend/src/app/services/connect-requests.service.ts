@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { map, tap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 export interface ConnectRequest {
@@ -17,9 +17,7 @@ export class ConnectRequestsService {
 
   /** Raw list for a user */
   listByUser(userId: number): Observable<ConnectRequest[]> {
-    return this.http.get<ConnectRequest[]>(`http://localhost:3000/api/connect-requests/1`).pipe(
-      tap(data => console.log('API Response for Connect Requests:', data))
-    );
+    return this.http.get<ConnectRequest[]>(`${this.base}/connect-requests/${userId}`);
   }
 
   /** Count total connect requests for a user */
