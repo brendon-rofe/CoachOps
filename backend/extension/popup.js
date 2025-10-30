@@ -98,6 +98,13 @@ async function init() {
     });
   }
 
+  const dashboardBtn = document.getElementById("dashboard-btn");
+  if (dashboardBtn) {
+    dashboardBtn.addEventListener("click", () => {
+      chrome.tabs.create({ url: "http://localhost:4200" });
+    });
+  }
+
   // initial render
   await render();
 }

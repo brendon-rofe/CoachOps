@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -28,8 +28,8 @@
       }
 
       body {
-        font-family: Inter, "Noto Sans", system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        font-family: Inter, "Noto Sans", system-ui, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
         background-color: var(--bg-root);
         color: var(--text-primary);
         margin: 0;
@@ -109,6 +109,25 @@
 
       .clear-btn:active {
         background-color: var(--bg-btn-danger-hover);
+      }
+
+      .go-btn {
+        appearance: none;
+        background-color: var(--accent);
+        border: none;
+        color: var(--text-primary);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        border-radius: var(--radius-lg);
+        padding: 6px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+        user-select: none;
+      }
+
+      .go-btn:active {
+        filter: brightness(0.9);
       }
 
       /* list container */
@@ -238,9 +257,12 @@
           <p class="subtitle">Latest invites you’ve sent</p>
         </div>
 
-        <button id="clear-btn" class="clear-btn" type="button">
-          Clear
-        </button>
+        <div class="right-buttons" style="display: flex; gap: 6px">
+          <button id="dashboard-btn" class="go-btn" type="button">
+            Dashboard
+          </button>
+          <button id="clear-btn" class="clear-btn" type="button">Clear</button>
+        </div>
       </div>
     </div>
 
