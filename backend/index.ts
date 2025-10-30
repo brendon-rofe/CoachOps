@@ -70,6 +70,23 @@ app.get('/api/direct-messages/:userId', async (req: Request, res: Response) => {
   };
 });
 
+app.post('/api/calls/:userId', async (req: Request, res: Response) => {
+  const userId = Number(req.params.userId);
+  const { dateBookedFor, recipientName } = req.body;
+  try {
+    const connectRequest = await prisma.call.create({
+      data: {
+        userId,
+        recipientName,
+        dateBookedFor: new Date(dateBookedFor),
+      }
+    });
+    res.json(connectRequest);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/api/calls/:userId', async (req: Request, res: Response) => {
   const userId = Number(req.params.userId);
   try {
