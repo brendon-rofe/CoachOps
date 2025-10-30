@@ -183,9 +183,52 @@ function handleConnectClick(btn) {
   const inviteeFromAria = parseInviteeFromAria(btn);
   const fallbackName = getProfileNameFallback();
 
+  // --- NEW: Extract profile URL from surrounding card ---
+  function findProfileUrlFromCard(startEl) {
+    if (!startEl) return null;
+
+    // 1. Walk up until we hit something that looks like a "card" container.
+    //    LinkedIn often uses <li> for suggestions or a wrapping <div>.
+    //    We'll allow up to ~6 ancestors so we don't walk the whole DOM.
+    let card = startEl;
+    for (let i = 0; i < 6 && card; i++) {
+      // heuristic: stop at <li> or <div> that contains an <a href*="/in/">
+      const linkInside = card.querySelector?.('a[href*="/in/"]');
+      if (linkInside && linkInside.href) {
+        return linkInside.href;
+      }
+      card = card.parentElement;
+    }
+
+    return null;
+  }
+
+  let profileUrl = null;
+
+  // Try button.closest() first (fast path)
+  const closestProfileAnchor = btn.closest('a[href*="/in/"]');
+  if (closestProfileAnchor && closestProfileAnchor.href) {
+    profileUrl = closestProfileAnchor.href;
+  }
+
+  // Try walking the card structure if closest() didn't hit
+  if (!profileUrl) {
+    profileUrl = findProfileUrlFromCard(btn);
+  }
+
+  // Fallback: page URL (works if you're on an actual /in/... profile already)
+  if (!profileUrl) {
+    profileUrl = location.href;
+  }
+
+  // Safety: some LinkedIn anchors might be relative like "/in/johnsmith/"
+  if (profileUrl.startsWith("/in/")) {
+    profileUrl = "https://www.linkedin.com" + profileUrl;
+  }
+
   const eventData = {
     ts: Date.now(),
-    url: location.href,
+    url: profileUrl,
     name: inviteeFromAria || fallbackName || "",
   };
 
@@ -198,34 +241,44 @@ function handleConnectClick(btn) {
       finalPayload
     );
 
-    // 1. Try normal path: send to background (source of truth)
-    chrome.runtime.sendMessage(
-      {
-        type: "connect-event",
-        payload: finalPayload,
-      },
-      async (response) => {
-        console.log("[ConnectChecker] background ack:", response);
-
-        // 2. Fallback: if background didn't ack ok:true, write it ourselves
-        if (!response || !response.ok) {
-          console.warn(
-            "[ConnectChecker] background did not confirm, writing locally from content script"
-          );
-
-          const STORAGE_KEY = "connect_events";
-          const got = await chrome.storage.local.get(STORAGE_KEY);
-          let events = got[STORAGE_KEY] || [];
-          if (!Array.isArray(events)) events = [];
-          events.unshift(finalPayload);
-          // cap at 500 like background.js
-          await chrome.storage.local.set({
-            [STORAGE_KEY]: events.slice(0, 500),
-          });
+    // Try to send to background (normal path)
+    try {
+      chrome.runtime.sendMessage(
+        {
+          type: "connect-event",
+          payload: finalPayload,
+        },
+        async (response) => {
+          // If background responded ok, cool. If not, write locally.
+          if (!response || !response.ok) {
+            console.warn("[ConnectChecker] bg no-ok, writing locally");
+            await storeLocally(finalPayload);
+          }
         }
-      }
-    );
+      );
+    } catch (err) {
+      // If sendMessage itself exploded (extension reload edge case),
+      // write locally so we don't lose the lead.
+      console.warn("[ConnectChecker] sendMessage threw, writing locally", err);
+      await storeLocally(finalPayload);
+    }
   });
+}
+
+// helper used in the fallback above
+async function storeLocally(finalPayload) {
+  try {
+    const STORAGE_KEY = "connect_events";
+    const got = await chrome.storage.local.get(STORAGE_KEY);
+    let events = got[STORAGE_KEY] || [];
+    if (!Array.isArray(events)) events = [];
+    events.unshift(finalPayload);
+    await chrome.storage.local.set({
+      [STORAGE_KEY]: events.slice(0, 500),
+    });
+  } catch (err2) {
+    console.error("[ConnectChecker] FAILED local write:", err2);
+  }
 }
 
 // Global click listener
