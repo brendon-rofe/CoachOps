@@ -4,14 +4,14 @@ function fmt(ts) {
   try {
     const d = new Date(ts);
 
-    // "30 Oct 2025"
+    // ex: "30 Oct 2025"
     const dateStr = d.toLocaleDateString(undefined, {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
 
-    // "20:31"
+    // ex: "20:31"
     const timeStr = d.toLocaleTimeString(undefined, {
       hour: "2-digit",
       minute: "2-digit",
@@ -56,9 +56,11 @@ function renderEventCard(evt) {
   `;
 }
 
-async function load() {
-  const got = await chrome.storage.local.get(STORAGE_KEY);
-  let events = got[STORAGE_KEY] || [];
+// Reads from storage and updates DOM
+async function render() {
+  const { [STORAGE_KEY]: stored } = await chrome.storage.local.get(STORAGE_KEY);
+
+  let events = stored || [];
   if (!Array.isArray(events)) events = [];
 
   const list = document.getElementById("list");
@@ -74,10 +76,30 @@ async function load() {
 
   badge.textContent = String(events.length);
 
-  // newest first (just in case)
+  // newest first (already unshifted in background/content, but let's keep this explicit)
   const recent = events.slice(0, 20);
 
   list.innerHTML = recent.map(renderEventCard).join("");
 }
 
-load();
+// Clears storage and then re-renders
+async function clearLog() {
+  await chrome.storage.local.set({ [STORAGE_KEY]: [] });
+  await render();
+}
+
+// Hook up events and initial load
+async function init() {
+  // attach click handler to Clear button
+  const clearBtn = document.getElementById("clear-btn");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", async () => {
+      await clearLog();
+    });
+  }
+
+  // initial render
+  await render();
+}
+
+init();
