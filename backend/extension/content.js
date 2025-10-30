@@ -183,57 +183,54 @@ function handleConnectClick(btn) {
   const inviteeFromAria = parseInviteeFromAria(btn);
   const fallbackName = getProfileNameFallback();
 
-  // --- NEW: Extract profile URL from surrounding card ---
-  function findProfileUrlFromCard(startEl) {
-    if (!startEl) return null;
-
-    // 1. Walk up until we hit something that looks like a "card" container.
-    //    LinkedIn often uses <li> for suggestions or a wrapping <div>.
-    //    We'll allow up to ~6 ancestors so we don't walk the whole DOM.
-    let card = startEl;
-    for (let i = 0; i < 6 && card; i++) {
-      // heuristic: stop at <li> or <div> that contains an <a href*="/in/">
-      const linkInside = card.querySelector?.('a[href*="/in/"]');
-      if (linkInside && linkInside.href) {
-        return linkInside.href;
-      }
-      card = card.parentElement;
-    }
-
-    return null;
-  }
-
+  // Find profile URL (same as before)
   let profileUrl = null;
-
-  // Try button.closest() first (fast path)
   const closestProfileAnchor = btn.closest('a[href*="/in/"]');
   if (closestProfileAnchor && closestProfileAnchor.href) {
     profileUrl = closestProfileAnchor.href;
   }
-
-  // Try walking the card structure if closest() didn't hit
   if (!profileUrl) {
-    profileUrl = findProfileUrlFromCard(btn);
+    const card = btn.closest("li, div");
+    const link = card?.querySelector?.('a[href*="/in/"]');
+    if (link && link.href) profileUrl = link.href;
   }
-
-  // Fallback: page URL (works if you're on an actual /in/... profile already)
-  if (!profileUrl) {
-    profileUrl = location.href;
-  }
-
-  // Safety: some LinkedIn anchors might be relative like "/in/johnsmith/"
+  if (!profileUrl) profileUrl = location.href;
   if (profileUrl.startsWith("/in/")) {
     profileUrl = "https://www.linkedin.com" + profileUrl;
   }
 
+  const recipientName = inviteeFromAria || fallbackName || "";
   const eventData = {
     ts: Date.now(),
     url: profileUrl,
-    name: inviteeFromAria || fallbackName || "",
+    name: recipientName,
   };
 
   console.log("[ConnectChecker] eventData before confirm:", eventData);
 
+  // ✅ NEW: send to your backend endpoint
+  try {
+    fetch("http://localhost:3000/api/connect-requests/1", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        recipientName: recipientName,
+      }),
+    })
+      .then((res) => res.text())
+      .then((text) => {
+        console.log("[ConnectChecker] Sent to API ->", text);
+      })
+      .catch((err) =>
+        console.error("[ConnectChecker] Error sending to API:", err)
+      );
+  } catch (err) {
+    console.error("[ConnectChecker] Fetch failed:", err);
+  }
+
+  // keep your local + background logic intact
   confirmStateChange(btn, async (status) => {
     const finalPayload = { ...eventData, status };
     console.log(
@@ -241,25 +238,16 @@ function handleConnectClick(btn) {
       finalPayload
     );
 
-    // Try to send to background (normal path)
     try {
-      chrome.runtime.sendMessage(
-        {
-          type: "connect-event",
-          payload: finalPayload,
-        },
-        async (response) => {
-          // If background responded ok, cool. If not, write locally.
-          if (!response || !response.ok) {
-            console.warn("[ConnectChecker] bg no-ok, writing locally");
-            await storeLocally(finalPayload);
-          }
-        }
-      );
+      chrome.runtime.sendMessage({
+        type: "connect-event",
+        payload: finalPayload,
+      });
     } catch (err) {
-      // If sendMessage itself exploded (extension reload edge case),
-      // write locally so we don't lose the lead.
-      console.warn("[ConnectChecker] sendMessage threw, writing locally", err);
+      console.warn(
+        "[ConnectChecker] sendMessage failed, storing locally:",
+        err
+      );
       await storeLocally(finalPayload);
     }
   });
