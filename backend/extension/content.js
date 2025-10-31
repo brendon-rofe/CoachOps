@@ -183,19 +183,40 @@ function handleConnectClick(btn) {
   const inviteeFromAria = parseInviteeFromAria(btn);
   const fallbackName = getProfileNameFallback();
 
-  // Find profile URL (same as before)
-  let profileUrl = null;
-  const closestProfileAnchor = btn.closest('a[href*="/in/"]');
-  if (closestProfileAnchor && closestProfileAnchor.href) {
-    profileUrl = closestProfileAnchor.href;
+  // --- robust profile URL extraction ---
+  function findProfileUrlFromAncestors(startEl) {
+    if (!startEl) return null;
+
+    // Try walking up several ancestors.
+    // At each ancestor, look for ANY <a href*="/in/">
+    let node = startEl;
+    for (let depth = 0; depth < 8 && node; depth++) {
+      // Direct anchor on this node
+      if (node.matches && node.matches('a[href*="/in/"]') && node.href) {
+        return node.href;
+      }
+
+      // Anchor somewhere inside this node
+      const innerLink = node.querySelector?.('a[href*="/in/"]');
+      if (innerLink && innerLink.href) {
+        return innerLink.href;
+      }
+
+      node = node.parentElement;
+    }
+
+    return null;
   }
+
+  let profileUrl = findProfileUrlFromAncestors(btn);
+
+  // Fallback to page URL (e.g. if you're already on /in/someone/)
   if (!profileUrl) {
-    const card = btn.closest("li, div");
-    const link = card?.querySelector?.('a[href*="/in/"]');
-    if (link && link.href) profileUrl = link.href;
+    profileUrl = location.href;
   }
-  if (!profileUrl) profileUrl = location.href;
-  if (profileUrl.startsWith("/in/")) {
+
+  // Normalize relative URLs like "/in/johnsmith/"
+  if (profileUrl.startsWith("/")) {
     profileUrl = "https://www.linkedin.com" + profileUrl;
   }
 
@@ -230,7 +251,7 @@ function handleConnectClick(btn) {
     console.error("[ConnectChecker] Fetch failed:", err);
   }
 
-  // keep your local + background logic intact
+  // Log locally + background
   confirmStateChange(btn, async (status) => {
     const finalPayload = { ...eventData, status };
     console.log(
