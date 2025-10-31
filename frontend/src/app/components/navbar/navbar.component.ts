@@ -25,7 +25,7 @@ import { ThemeService } from '../../services/theme.service';
             ></path>
           </svg>
         </div>
-        <h2 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">CoachOps</h2>
+        <h2 class="text-[#0d141b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">OutreachOps</h2>
       </div>
 
       <div class="flex flex-1 justify-end gap-8 items-center">
