@@ -4,14 +4,12 @@ function fmt(ts) {
   try {
     const d = new Date(ts);
 
-    // ex: "30 Oct 2025"
     const dateStr = d.toLocaleDateString(undefined, {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
 
-    // ex: "20:31"
     const timeStr = d.toLocaleTimeString(undefined, {
       hour: "2-digit",
       minute: "2-digit",

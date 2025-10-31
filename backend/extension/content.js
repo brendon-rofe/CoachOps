@@ -208,7 +208,7 @@ function handleConnectClick(btn) {
 
   console.log("[ConnectChecker] eventData before confirm:", eventData);
 
-  // ✅ NEW: send to your backend endpoint
+  // send to backend endpoint
   try {
     fetch("http://localhost:3000/api/connect-requests/1", {
       method: "POST",
